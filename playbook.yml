@@ -11,18 +11,13 @@
   - name: Install JDK 8
     command: "rpm -ivh jdk-8u171-linux-x64.rpm"
     
-  - name: Download Maven
-    get_url: url=http://www-us.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz dest=/opt/niranjan/apache-maven-3.5.3-bin.tar.gz
-  - name: Extract Maven
-    command: tar xvf /opt/niranjan/apache-maven-3.5.3-bin.tar.gz -C /opt/niranjan
-  - name: Move to a smaller directory
-    command: mv /opt/niranjan/apache-maven-3.5.3 /opt/niranjan/maven
-  - name: Update Profile
-    copy: content="export M2_HOME=/opt/niranjan/maven \n" dest=/etc/profile.d/maven.sh
-  # lineinfile is used to add additional or append lines to existing files.
-  - lineinfile:
-    path: /etc/profile.d/maven.sh
-    line: 'export PATH=${M2_HOME}/bin:${PATH}'
-  - name: Source profile
-    shell: source /etc/profile.d/maven.sh
+  - name: Download Apache Maven 
+    get_url: url=http://apache.claz.org/maven/maven-3/3.1.1/binaries/apache-maven--bin.tar.gz dest=/tmp/apache-maven-3.1.1-bin.tar.gz
 
+  - name: Untar Maven 
+    shell: chdir=/tmp creates=/opt/apache-maven-3.1.1 tar -zxf apache-maven-3.1.1-bin.tar.gz -C /opt
+
+    # What is missing
+
+  - name: Update path for maven use
+    shell: export PATH=/opt/apache-maven-3.1.1/bin:$PATH
