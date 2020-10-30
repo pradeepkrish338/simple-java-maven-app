@@ -1,38 +1,28 @@
 ---
 - hosts: webservers
-tasks:
-- name: Download Java JRE
-get_url:
-url: http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jre-8u60-linux-x64.rpm
-dest: /opt/jre-8u60-linux-x64.rpm
-headers: 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie'
-- name: install Java JRE rpm from a local file
-yum:
-name: /opt/jre-8u60-linux-x64.rpm
-state: present
-- name: Download Java JDK
-get_url:
-url: http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-linux-x64.rpm
-dest: /opt/jdk-8u60-linux-x64.rpm
-headers: 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie'
-- name: Install Java JDK rpm from a local file
-yum:
-name: /opt/jdk-8u60-linux-x64.rpm
-state: present
+  #remote_user: vagrant
+  become: true
+  vars:
+   download_url: http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm
+  
+  tasks:
+  - name: Download JDK 8 RPM file
+    command: "wget --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{download_url}} "
+  - name: Install JDK 8
+    command: "rpm -ivh jdk-8u171-linux-x64.rpm"
+    
+  - name: Download Maven
+    get_url: url=http://www-us.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz dest=/opt/niranjan/apache-maven-3.5.3-bin.tar.gz
+  - name: Extract Maven
+    command: tar xvf /opt/niranjan/apache-maven-3.5.3-bin.tar.gz -C /opt/niranjan
+  - name: Move to a smaller directory
+    command: mv /opt/niranjan/apache-maven-3.5.3 /opt/niranjan/maven
+  - name: Update Profile
+    copy: content="export M2_HOME=/opt/niranjan/maven \n" dest=/etc/profile.d/maven.sh
+  # lineinfile is used to add additional or append lines to existing files.
+  - lineinfile:
+     path: /etc/profile.d/maven.sh
+  line: 'export PATH=${M2_HOME}/bin:${PATH}'
+  - name: Source profile
+    shell: source /etc/profile.d/maven.sh
 
-- name: install the latest version of Apache Maven
-yum:
-name: maven
-state: latest
-
-- name: install the latest version of Docker
-yum:
-name: docker
-state: latest
-- name: install the latest version of Python-pip
-yum:
-name: python-pip
-state: latest
-- name: install the latest version of Docker-compose from pip
-pip:
-name: docker-compose
