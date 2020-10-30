@@ -7,9 +7,11 @@
   
   tasks:
   - name: Download JDK 8 RPM file
-    command: "wget --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{download_url}} "
-  - name: Install JDK 8
-    command: "rpm -ivh jdk-8u171-linux-x64.rpm"
+    yum:
+      name: "{{ item }}"
+      state: present
+    with_items:
+     openjdk-8-jdk 
     
   - name: Download Apache Maven 
     get_url: url=http://apache.claz.org/maven/maven-3/3.1.1/binaries/apache-maven--bin.tar.gz dest=/tmp/apache-maven-3.1.1-bin.tar.gz
